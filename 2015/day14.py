@@ -45,6 +45,7 @@ def simulate_travel(raindeers: list[Raindeer]):
             if r.exhaustion <= 1:
                 r.flying = True
                 r.exhaustion = 0
+
     max_travelled = max(r.travelled for r in raindeers)
     for r in raindeers:
         if r.travelled == max_travelled:
@@ -61,37 +62,39 @@ def test_simulate_travel():
         ),
     ]
     seconds = 1
-    simulate_travel(raindeers)
-    seconds += 1
+
+    def forward(until=None):
+        nonlocal seconds
+        until = seconds if until is None else until
+        while seconds <= until:
+            simulate_travel(raindeers)
+            seconds += 1
+
+    forward()
     assert raindeers[0].travelled == 14
     assert raindeers[1].travelled == 16
-    while seconds <= 10:
-        simulate_travel(raindeers)
-        seconds += 1
+
+    forward(until=10)
     assert raindeers[0].travelled == 140
     assert raindeers[0].flying
     assert raindeers[1].travelled == 160
     assert raindeers[1].flying
-    simulate_travel(raindeers)
-    seconds += 1
+
+    forward()
     assert raindeers[0].resting
     assert raindeers[0].travelled == 140
     assert raindeers[1].flying
     assert raindeers[1].travelled == 176
-    simulate_travel(raindeers)
-    seconds += 1
+
+    forward()
     assert raindeers[0].resting
     assert raindeers[0].travelled == 140
     assert raindeers[1].resting
     assert raindeers[1].travelled == 176
-    while seconds <= 138:
-        simulate_travel(raindeers)
-        seconds += 1
+    forward(until=138)
     assert raindeers[0].flying
 
-    while seconds <= 1000:
-        simulate_travel(raindeers)
-        seconds += 1
+    forward(until=1000)
     assert raindeers[0].resting
     assert raindeers[0].travelled == 1120
     assert raindeers[1].resting
